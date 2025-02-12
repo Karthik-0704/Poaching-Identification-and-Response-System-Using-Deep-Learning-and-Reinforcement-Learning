@@ -1,0 +1,5 @@
+train: C:\Users\kvsud\OneDrive\Desktop\poaching dataset\yolov11\train
+val: C:\Users\kvsud\OneDrive\Desktop\poaching dataset\yolov11\val
+
+nc: 1
+classes: ["Elephant"]
