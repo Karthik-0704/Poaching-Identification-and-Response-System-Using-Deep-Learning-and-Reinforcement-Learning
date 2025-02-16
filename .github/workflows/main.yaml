@@ -43,3 +43,31 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/elephant-detection:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/elephant-detection:latest
+
+  deployment:
+    name: Continuous Deployment
+    needs: build-and-push-docker-image  # Runs after Docker image is pushed
+    runs-on: self-hosted  # Uses AWS EC2 self-hosted runner
+
+    steps:
+      - name: Cleanup Docker Containers Before Pulling New Image
+        run: |
+          echo "⛔ Removing all existing containers (running & stopped)..."
+          docker rm -f $(docker ps -aq) || true  # Remove all containers
+          echo "🚮 Removing all unused Docker images..."
+          docker image prune -af
+
+      - name: Deploy to AWS EC2
+        run: |
+          echo "✅ Pulling latest Docker image..."
+          docker pull ${{ secrets.DOCKER_USERNAME }}/elephant-detection:latest
+
+          echo "🚀 Running new container..."
+          docker run -d -p 5000:5000 --name elephant-container ${{ secrets.DOCKER_USERNAME }}/elephant-detection:latest
+
+      - name: Cleanup Docker Containers After Deployment
+        run: |
+          echo "⛔ Removing all stopped containers to free up space..."
+          docker rm -f $(docker ps -aq) || true  # Remove all stopped containers
+          echo "🚮 Removing any dangling Docker images..."
+          docker image prune -af
