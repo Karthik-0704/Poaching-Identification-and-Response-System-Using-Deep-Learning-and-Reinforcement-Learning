@@ -1,9 +1,6 @@
-flask
-flask-cors
-flask-socketio
+streamlit
 ultralytics
 opencv-python
 numpy
-pillow
+Pillow
 torch
-eventlet
